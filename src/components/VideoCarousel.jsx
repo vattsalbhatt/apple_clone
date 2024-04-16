@@ -21,14 +21,13 @@ const VideoCarousel = () => {
   const { isEnd, startPlay, videoId, isLastVideo, isPlaying } = video;
 
   useGSAP(() => {
-    
     gsap.to('#slider', {
-        transform: `trasnlateX(${-100 * videoId})%`,
+        transform: `translateX(${-100 * videoId})%`,
         ease: 'power2.inOut',
         duration: 2,
 
     })
-
+    
 
     gsap.to("#video", {
       scrollTrigger: {
@@ -54,67 +53,76 @@ const VideoCarousel = () => {
 
       let anim = gsap.to(span[videoId], {
         onUpdate: () => {
+          // get the progress of the video
           const progress = Math.ceil(anim.progress() * 100);
-          if (progress !== currentProgress) {
+
+          if (progress != currentProgress) {
             currentProgress = progress;
 
+            // set the width of the progress bar
             gsap.to(videoDivRef.current[videoId], {
               width:
                 window.innerWidth < 760
-                  ? "10vw"
+                  ? "10vw" // mobile
                   : window.innerWidth < 1200
-                  ? "10vw"
-                  : "4vw",
+                  ? "10vw" // tablet
+                  : "4vw", // laptop
             });
 
+            // set the background color of the progress bar
             gsap.to(span[videoId], {
               width: `${currentProgress}%`,
               backgroundColor: "white",
             });
-
-            gsap.to(span[videoId], {
-              backgroundColor: "#afafaf",
-            });
           }
         },
+
+        // when the video is ended, replace the progress bar with the indicator and change the background color
         onComplete: () => {
           if (isPlaying) {
             gsap.to(videoDivRef.current[videoId], {
               width: "12px",
             });
+            gsap.to(span[videoId], {
+              backgroundColor: "#afafaf",
+            });
           }
-          if (videoId === 0) {
-            anim.restart();
-          }
-
-          const animUpdate = () =>{
-            anim.progress(
-              videoRef.current[videoId].currentTime /
-                hightlightsSlides[videoId].videoDuration
-            );}
-
-            if (isPlaying) {
-              gsap.ticker.add(animUpdate);
-            } else {
-              gsap.ticker.remove(animUpdate);
-            }
         },
       });
+
+      if (videoId == 0) {
+        anim.restart();
+      }
+
+      // update the progress bar
+      const animUpdate = () => {
+        anim.progress(
+          videoRef.current[videoId].currentTime /
+            hightlightsSlides[videoId].videoDuration
+        );
+      };
+
+      if (isPlaying) {
+        // ticker to update the progress bar
+        gsap.ticker.add(animUpdate);
+      } else {
+        // remove the ticker when the video is paused (progress bar is stopped)
+        gsap.ticker.remove(animUpdate);
+      }
     }
   }, [videoId, startPlay]);
 
   useEffect(() => {
     if (loadedData.length > 3) {
-      console.log(loadedData, isPlaying);
       if (!isPlaying) {
         videoRef.current[videoId].pause();
       } else {
         startPlay && videoRef.current[videoId].play();
-        console.log("I'm here", isPlaying, videoId);
       }
     }
   }, [startPlay, videoId, isPlaying, loadedData]);
 
+  // vd id is the id for every video until id becomes number 3
   const handleProcess = (type, i) => {
     switch (type) {
       case "video-end":
@@ -151,7 +159,7 @@ const VideoCarousel = () => {
     }
   };
 
-  const handleLoadedMetadata = (i, e) => setLoadedData((pre) => [...pre, e]);
+  const handleLoadedMetaData = (i, e) => setLoadedData((pre) => [...pre, e]);
 
   return (
     <>
@@ -199,8 +207,8 @@ const VideoCarousel = () => {
           {videoRef.current.map((_, i) => (
             <span
               key={i}
-              ref={(el) => (videoDivRef.current[i] = el)}
               className="mx-2 w-3 h-3 bg-gray-200 rounded-full relative cursor-pointer"
+              ref={(el) => (videoDivRef.current[i] = el)}
             >
               <span
                 className="absolute h-full w-full rounded-full"
@@ -216,10 +224,10 @@ const VideoCarousel = () => {
             alt={isLastVideo ? "replay" : !isPlaying ? "play" : "pause"}
             onClick={
               isLastVideo
-                ? handleProcess("video-reset")
+                ? () => handleProcess("video-reset")
                 : !isPlaying
-                ? handleProcess("play")
-                : handleProcess("pause")
+                ? () => handleProcess("play")
+                : () => handleProcess("pause")
             }
           />
         </button>
