@@ -178,21 +178,18 @@ const VideoCarousel = () => {
                   muted
                   ref={(el) => (videoRef.current[i] = el)}
                   onPlay={() =>
-                    setVideo((prevVideo) => ({
-                      ...prevVideo,
-                      isPlaying: true,
-                    }))
+                    setVideo((pre) => ({ ...pre, isPlaying: true }))
                   }
                   onEnded={()=> i !== 3 ?  handleProcess('video-end', i) : handleProcess('video-last', i)}
-                  onLoadedMetadata={(e) => handleLoadedMetadata(i, e)}
+                  onLoadedMetadata={(e) => handleLoadedMetaData(i, e)}
                 >
                   <source src={slide.video} type="video/mp4" />
                 </video>
               </div>
 
               <div className="absolute top-12 left-[5%] z-10">
-                {slide.textLists.map((text) => (
-                  <p key={text} className="md:text-2xl text-xl font-medium">
+                {slide.textLists.map((text, i) => (
+                  <p key={i} className="md:text-2xl text-xl font-medium">
                     {text}
                   </p>
                 ))}
