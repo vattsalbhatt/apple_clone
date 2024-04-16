@@ -21,13 +21,11 @@ const VideoCarousel = () => {
   const { isEnd, startPlay, videoId, isLastVideo, isPlaying } = video;
 
   useGSAP(() => {
-    gsap.to('#slider', {
-        transform: `translateX(${-100 * videoId})%`,
-        ease: 'power2.inOut',
-        duration: 2,
-
-    })
-    
+    gsap.to("#slider", {
+      transform: `translateX(${-100 * videoId}%)`,
+      ease: "power2.inOut",
+      duration: 2,
+    });
 
     gsap.to("#video", {
       scrollTrigger: {
@@ -153,6 +151,12 @@ const VideoCarousel = () => {
           isPlaying: !prevVideo.isPlaying,
         }));
         break;
+      case "pause":
+        setVideo((prevVideo) => ({
+          ...prevVideo,
+          isPlaying: !prevVideo.isPlaying,
+        }));
+        break;
 
       default:
         return video;
@@ -172,6 +176,9 @@ const VideoCarousel = () => {
                 overflow-hidden bg-black"
               >
                 <video
+                  className={`${
+                    slide.id == 2 && "translate-x-44"
+                  } pointer-events-none`}
                   id="video"
                   playsInline={true}
                   preload="auto"
@@ -180,7 +187,11 @@ const VideoCarousel = () => {
                   onPlay={() =>
                     setVideo((pre) => ({ ...pre, isPlaying: true }))
                   }
-                  onEnded={()=> i !== 3 ?  handleProcess('video-end', i) : handleProcess('video-last', i)}
+                  onEnded={() =>
+                    i !== 3
+                      ? handleProcess("video-end", i)
+                      : handleProcess("video-last", i)
+                  }
                   onLoadedMetadata={(e) => handleLoadedMetaData(i, e)}
                 >
                   <source src={slide.video} type="video/mp4" />
